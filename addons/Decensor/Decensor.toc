@@ -1,0 +1,7 @@
+## Interface: 90105
+## Title:     Decensor
+## Notes:     Restores removed emotes such as /moan and /spit. 
+## Author:    Kumodatsu
+## Version:   0.1.0
+
+src/main.lua
