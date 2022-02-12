@@ -1,0 +1,46 @@
+name: Create release
+
+# Triggered when a tag is pushed whose name is a "v" followed by a semantic
+# version; for example, "v1.2.3"
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  # Create a release with a downloadable zip file of the addons.
+  # The release notes are pulled from the relevant version's section in the
+  # changelog.
+  create_release:
+    name:    Create release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Copy documents to addon folders
+        run:  |
+          cp LICENSE.md addons/Decensor/LICENSE.md
+          cp CHANGELOG.md addons/Decensor/CHANGELOG.md
+      - name: Create zip file
+        uses: papeloto/action-zip@v1
+        with:
+          files:     addons/
+          dest:      Decensor.zip
+          recursive: true
+          path:    ./CHANGELOG.md
+      - name: Create release
+        id:   create_release
+        uses: Kumodatsu/changelog-release-action@v0.3.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag:          ${{ github.ref }}
+          release_name: Version $VERSION
+      - name: Upload release assets
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url:         ${{ steps.create_release.outputs.upload_url }}
+          asset_path:         Decensor.zip
+          asset_name:         Decensor.zip
+          asset_content_type: application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
